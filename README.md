@@ -19,6 +19,8 @@ Sensor Data Collector is an Android app designed to collect gyroscope, accelerom
 - A compatible Android smartphone.
 - A compatible Android smartwatch.
 
+<img src="https://github.com/black-hole-diver/mozgasmeres-wearos-1/blob/main/MobileApp/src/main/res/mipmap-xxhdpi/ic_launcher_round.png" alt="icon-version-2" width="200"/>
+
 ## Installation
 
 1. Clone this repository to your local machine:
