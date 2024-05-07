@@ -27,3 +27,20 @@ Sensor Data Collector is an Android app designed to collect gyroscope, accelerom
     ```
 2. Open the project in Android Studio.
 3. Build and run the project on both the smartwatch and the smartphone.
+
+## Usage
+1. Connect Devices:
+Make sure both the smartphone and smartwatch are paired via Bluetooth.
+2. Launch Apps:
+- Start the Sensor Data Collector app on phone.
+3. Start Collection:
+- Press the "Start" button on the phone to begin collecting data.
+- Data is continuously sent to the smartphone and sent to Downloads/ directory on phone.
+
+## Data Format
+The exported CSV file contains the following columns:
+
+1. Timestamp (milliseconds since epoch)
+2. Accelerometer with X, Y, Z values (uacc_x, uacc_y, uacc_z)
+3. Gravity with X, Y, Z values (grav_x, grav_y, grav_z)
+4. Gyroscope with X, Y, Z values (gyr_x, gyr_y, gyr_z)
