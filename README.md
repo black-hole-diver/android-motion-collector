@@ -2,6 +2,9 @@
 
 ![Platform](https://img.shields.io/badge/Platform-Android-green.svg)
 
+
+<img src="https://github.com/black-hole-diver/mozgasmeres-wearos-1/blob/slicing-3000-ms/a-girl-biking.jpg" alt="drawing" width="300"/>
+
 Sensor Data Collector is an Android app designed to collect gyroscope, accelerometer, and gravity sensor data from a smartwatch and transfer it to a smartphone in CSV format with accurate timestamps.
 
 ## Features
