@@ -1,0 +1,26 @@
+<?xml version='1.0' encoding='utf-8'?>
+<plugin id="cordova-plugin-sensor" version="0.1.0" xmlns="http://apache.org/cordova/ns/plugins/1.0">
+    <name>SensorWrapper</name>
+
+    <platform name="android">
+        <!-- WearOs Dependencies -->
+        <preference name="PLAY_SERVICES_VERSION" default="11+"/>
+        <framework src="com.google.android.gms:play-services-base:$PLAY_SERVICES_VERSION" />
+        <framework src="com.google.android.gms:play-services-wearable:$PLAY_SERVICES_VERSION" />
+
+        <source-file src="src/android/SensorWrapper.java" target-dir="src/com/elte/SensorWrapper" />
+        <framework custom="true" src="src/android/build.gradle" type="gradleReference" />
+
+        <config-file parent="/*" target="res/xml/config.xml">
+            <feature name="SensorWrapper">
+                <param name="android-package" value="com.elte.SensorWrapper" />
+            </feature>
+        </config-file>
+
+        <!-- The JS file that invokes the Java lib -->
+        <js-module name="SensorWrapper" src="www/SensorWrapper.js">
+            <clobbers target="cordova.plugins.SensorWrapper" />
+        </js-module>
+
+    </platform>
+</plugin>

@@ -1,0 +1,10 @@
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'com.google.android.gms:play-services-gcm:17.0.0'
+    implementation 'com.google.android.gms:play-services-wearable:18.0.0'
+    implementation 'androidx.core:core-ktx:1.6.0'
+}

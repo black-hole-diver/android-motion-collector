@@ -1,0 +1,17 @@
+{
+  "name": "cordova-plugin-sensor",
+  "version": "0.1.0",
+  "description": "Cordova plugin for recording WearOS sensors.",
+  "cordova": {
+    "id": "cordova-plugin-sensor",
+    "platforms": [
+      "android"
+    ]
+  },
+  "keywords": [
+    "ecosystem:cordova",
+    "cordova-android"
+  ],
+  "author": "",
+  "license": "ISC"
+}

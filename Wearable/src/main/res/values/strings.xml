@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">Sensor</string>
+    <!--
+    This string is used for square devices and overridden by hello_world in
+    values-round/strings.xml for round devices.
+    -->
+    <string name="waiting_for_connections">Sensor Recorder</string>
+</resources>
