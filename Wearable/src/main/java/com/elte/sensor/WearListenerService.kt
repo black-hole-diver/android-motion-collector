@@ -24,6 +24,7 @@ class WearListenerService : WearableListenerService() {
 
     /**
      * Called when a message is received from the connected phone.
+     * @messageEvent The message event.
      */
     override fun onMessageReceived(messageEvent: MessageEvent) {
         Log.i(TAG, "Message received: ${messageEvent.path} from ${messageEvent.sourceNodeId}")
