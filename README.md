@@ -2,9 +2,6 @@
 
 ![Platform](https://img.shields.io/badge/Platform-Android-green.svg)
 
-
-<img src="https://github.com/black-hole-diver/mozgasmeres-wearos-1/blob/slicing-3000-ms/a-girl-biking.jpg" alt="drawing" width="300"/>
-
 Android Motion Collector is an Android app designed to collect gyroscope, accelerometer, and gravity sensor data from a smartwatch and transfer it to a smartphone in CSV format with accurate timestamps. The application is used to primarily to compare sensor data output with iOS Motion Collector (Apple Watch 4). The application is one of the 3 applications used to finish the thesis of Wittawin Panta, Computer BSc, Eötvös Loránd University, 2023/2024-2. The thesis name is Machine Learning Based Real-time Movement Detection of Children.
 
 ## Features
