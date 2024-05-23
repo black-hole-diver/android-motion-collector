@@ -6,6 +6,7 @@ import android.os.Environment
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.net.toUri
+import com.elte.sensor.databinding.FragmentFirstBinding
 import com.google.android.gms.wearable.*
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -19,6 +20,7 @@ import java.time.format.DateTimeFormatter
  * @author Wittawin Panta
  */
 class MobileListenerService : WearableListenerService() {
+    private lateinit var binding: FragmentFirstBinding
     private val retrofit = Retrofit.Builder()
         .baseUrl("https://studio.edgeimpulse.com/v1/")
         .addConverterFactory(GsonConverterFactory.create())

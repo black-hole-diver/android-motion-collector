@@ -1,5 +1,7 @@
 package com.elte.sensor
 
+import android.hardware.Sensor
+import android.hardware.SensorManager
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -15,6 +17,7 @@ import com.google.android.gms.wearable.Node
 import com.google.android.gms.wearable.Wearable
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import com.google.android.gms.wearable.*
 
 /**
  * First fragment.
@@ -26,6 +29,10 @@ class FirstFragment : Fragment() {
     private lateinit var binding: FragmentFirstBinding
     private var connectedNodes: List<Node> = emptyList()
 
+    private lateinit var sensorManager: SensorManager
+    private var accelerometer: Sensor? = null
+    private var gyroscope: Sensor? = null
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -34,6 +41,15 @@ class FirstFragment : Fragment() {
         binding.refreshConnectedNodes.setOnClickListener {
             findAllWearDevices()
         }
+        binding.imageView.setImageResource(R.drawable.bear)
+
+        binding.accX.text = "acc-x: 0.0"
+        binding.accY.text = "acc-y: 0.0"
+        binding.accZ.text = "acc-z: 0.0"
+        binding.gyroX.text = "gyro-x: 0.0"
+        binding.gyroY.text = "gyro-y: 0.0"
+        binding.gyroZ.text = "gyro-z: 0.0"
+        binding.startRecordingBtn.visibility = View.VISIBLE
         binding.startRecordingBtn.setOnClickListener {
             startRecording()
         }
@@ -72,6 +88,9 @@ class FirstFragment : Fragment() {
             binding.startRecordingBtn.visibility = View.INVISIBLE
             binding.stopRecordingBtn.visibility = View.VISIBLE
             binding.connectionStatus.text = "Recording in progress..."
+//            while (true) {
+//                updateSensorData()
+//            }
         } catch (throwable: Throwable) {
             Log.e(TAG, throwable.toString())
             binding.connectionStatus.text = throwable.message +
@@ -79,6 +98,22 @@ class FirstFragment : Fragment() {
                     " via the Galaxy Watch app.."
         }
     }
+
+//    private suspend fun updateSensorData() {
+//        try {
+//            val sensorsClient = Wearable.getSensorsClient(requireActivity())
+//            val accelerometerData = sensorsClient.getData("ACCELEROMETER").await()
+//            val gyroscopeData = sensorsClient.getData("GYROSCOPE").await()
+//            binding.accX.text = "acc-x: ${accelerometerData.x}"
+//            binding.accY.text = "acc-y: ${accelerometerData.y}"
+//            binding.accZ.text = "acc-z: ${accelerometerData.z}"
+//            binding.gyroX.text = "gyro-x: ${gyroscopeData.x}"
+//            binding.gyroY.text = "gyro-y: ${gyroscopeData.y}"
+//            binding.gyroZ.text = "gyro-z: ${gyroscopeData.z}"
+//        } catch (e: Exception) {
+//            Log.e(TAG, "Error updating sensor data", e)
+//        }
+//    }
 
     private fun findAllWearDevices() {
         lifecycleScope.launch {

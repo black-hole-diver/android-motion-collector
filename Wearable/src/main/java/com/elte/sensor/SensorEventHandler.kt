@@ -6,8 +6,12 @@ import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.net.Uri
 import android.os.SystemClock
+import android.provider.Settings.Global.putString
 import android.util.Log
 import androidx.core.net.toUri
+import com.google.android.gms.wearable.DataMap
+import com.google.android.gms.wearable.PutDataMapRequest
+import com.google.android.gms.wearable.Wearable
 import java.io.File
 import java.util.TreeMap
 import kotlin.math.roundToInt
@@ -19,6 +23,7 @@ import kotlin.math.roundToInt
  * @author Wittawin Panta
  */
 class SensorEventHandler : SensorEventListener {
+    private val mainInstance = MainActivity.instance
     /**
      * Stores all sensor readings in a mutable list. Each reading is a map containing
      * details such as the timestamp, sensor name, values, etc.
@@ -42,10 +47,30 @@ class SensorEventHandler : SensorEventListener {
             "coords"    to event.values.size.toString(),
             "type"      to event.sensor.stringType
         ))
+
         Log.d(
             TAG,
             "event from ${event.sensor.stringType} received (${event.values.joinToString(",")})"
         )
+
+        // Send the sensor data to the phone
+        sendSensorDataToPhone(event, normalizedTimestamp)
+    }
+
+    private fun sendSensorDataToPhone(event: SensorEvent, normalizedTimestamp: Double) {
+        val dataMap = DataMap().apply {
+            putString("timestamp", normalizedTimestamp.toString())
+            putString("name", event.sensor.name)
+            putString("values", event.values.joinToString(" # "))
+            putString("accuracy", event.accuracy.toString())
+            putString("coords", event.values.size.toString())
+            putString("type", event.sensor.stringType)
+        }
+        val putDataMapReq = PutDataMapRequest.create("/sensor_data").apply {
+            dataMap.putAll(dataMap)
+        }
+        val putDataReq = putDataMapReq.asPutDataRequest()
+        Wearable.getDataClient(mainInstance).putDataItem(putDataReq)
     }
 
     /**

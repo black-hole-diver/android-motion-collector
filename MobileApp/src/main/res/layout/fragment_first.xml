@@ -156,7 +156,7 @@
         android:layout_marginEnd="12dp"
         android:contentDescription="@string/predictionName"
         android:scaleType="fitCenter"
-        android:src="@drawable/spider"
+        android:src="@drawable/goliath"
         app:layout_constraintEnd_toEndOf="@+id/refresh_connected_nodes"
         app:layout_constraintTop_toBottomOf="@+id/refresh_connected_nodes" />
 
