@@ -1,5 +1,6 @@
 package com.elte.sensor
 
+import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
@@ -34,6 +35,34 @@ class MobileListenerService : WearableListenerService() {
         val fileUri = this.createFile()
         Wearable.getChannelClient(application).receiveFile(channel, fileUri, false)
         uploadFileToEdgeImpulse(File(fileUri.path!!))
+    }
+
+    override fun onDataChanged(dataEvents: DataEventBuffer) {
+        for (event in dataEvents) {
+            if (event.type == DataEvent.TYPE_CHANGED && event.dataItem.uri.path == "/sensor_data") {
+                val dataMap = DataMap.fromByteArray(event.dataItem.data)
+                val timestamp = dataMap.getString("timestamp")
+                val name = dataMap.getString("name")
+                val values = dataMap.getString("values")
+                val accuracy = dataMap.getString("accuracy")
+                val coords = dataMap.getString("coords")
+                val type = dataMap.getString("type")
+
+                broadcastSensorData(timestamp, name, values, accuracy, coords, type)
+            }
+        }
+    }
+
+    private fun broadcastSensorData(timestamp: String?, name: String?, values: String?, accuracy: String?, coords: String?, type: String?) {
+        val intent = Intent("com.elte.sensor.SENSOR_DATA").apply {
+            putExtra("timestamp", timestamp)
+            putExtra("name", name)
+            putExtra("values", values)
+            putExtra("accuracy", accuracy)
+            putExtra("coords", coords)
+            putExtra("type", type)
+        }
+        sendBroadcast(intent)
     }
 
     private fun uploadFileToEdgeImpulse(file: File) {

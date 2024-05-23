@@ -1,5 +1,9 @@
 package com.elte.sensor
 
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.hardware.Sensor
 import android.hardware.SensorManager
 import android.os.Bundle
@@ -32,6 +36,45 @@ class FirstFragment : Fragment() {
     private lateinit var sensorManager: SensorManager
     private var accelerometer: Sensor? = null
     private var gyroscope: Sensor? = null
+
+    private val sensorDataReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            if (intent != null) {
+                val timestamp = intent.getStringExtra("timestamp")
+                val name = intent.getStringExtra("name")
+                val values = intent.getStringExtra("values")
+                val accuracy = intent.getStringExtra("accuracy")
+                val coords = intent.getStringExtra("coords")
+                val type = intent.getStringExtra("type")
+
+                updateSensorData(timestamp, name, values, accuracy, coords, type)
+            }
+        }
+    }
+
+
+
+    private fun updateSensorData(timestamp: String?, name: String?, values: String?, accuracy: String?, coords: String?, type: String?) {
+        val sensorData = """
+            Timestamp: $timestamp
+            Name: $name
+            Values: $values
+            Accuracy: $accuracy
+            Coords: $coords
+            Type: $type
+        """.trimIndent()
+
+        binding.connectionStatus.text = sensorData
+        if (name == "Accelerometer") {
+            binding.accX.text = "acc-x: ${values?.split("#")?.get(0)?.trim()}"
+            binding.accY.text = "acc-y: ${values?.split("#")?.get(1)?.trim()}"
+            binding.accZ.text = "acc-z: ${values?.split("#")?.get(2)?.trim()}"
+        } else if (name == "Gyroscope") {
+            binding.gyroX.text = "gyro-x: ${values?.split("#")?.get(0)?.trim()}"
+            binding.gyroY.text = "gyro-y: ${values?.split("#")?.get(1)?.trim()}"
+            binding.gyroZ.text = "gyro-z: ${values?.split("#")?.get(2)?.trim()}"
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -70,12 +113,14 @@ class FirstFragment : Fragment() {
             sendMessageToConnectedNodes(MESSAGE_PATH_RECORDING_STOPPED)
             binding.connectionStatus.text =
                 "Recording stopped. File successfully saved in Downloads folder."
+
         } catch (throwable: Throwable) {
             Log.e(TAG, throwable.toString())
             binding.connectionStatus.text = throwable.message +
                     " Make sure the watch is connected to the phone" +
                     " via the Galaxy Watch app."
         } finally {
+            requireActivity().unregisterReceiver(sensorDataReceiver)
             binding.startRecordingBtn.visibility = View.VISIBLE
             binding.stopRecordingBtn.visibility = View.INVISIBLE
         }
@@ -88,9 +133,8 @@ class FirstFragment : Fragment() {
             binding.startRecordingBtn.visibility = View.INVISIBLE
             binding.stopRecordingBtn.visibility = View.VISIBLE
             binding.connectionStatus.text = "Recording in progress..."
-//            while (true) {
-//                updateSensorData()
-//            }
+            val filter = IntentFilter("com.elte.sensor.SENSOR_DATA")
+            requireActivity().registerReceiver(sensorDataReceiver, filter)
         } catch (throwable: Throwable) {
             Log.e(TAG, throwable.toString())
             binding.connectionStatus.text = throwable.message +
