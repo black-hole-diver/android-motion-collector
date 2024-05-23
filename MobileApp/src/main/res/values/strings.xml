@@ -7,4 +7,16 @@
     <string name="refresh_connected_nodes">Search for connected devices</string>
     <string name="connection_status">Connection status: %1$s</string>
     <string name="phone_node_id">PhoneNode ID: %1$s</string>
+
+    <string name="acc_x">acc-x: %1$s</string>
+    <string name="acc_y">acc-y: %1$s</string>
+    <string name="acc_z">acc-z: %1$s</string>
+
+    <string name="gyro_x">gyro-x: %1$s</string>
+    <string name="gyro_y">gyro-y: %1$s</string>
+    <string name="gyro_z">gyro-z: %1$s</string>
+
+    <string name="predictionName">%1$s</string>
+
+    <string name="predictionText">Prediction: %1$s</string>
 </resources>

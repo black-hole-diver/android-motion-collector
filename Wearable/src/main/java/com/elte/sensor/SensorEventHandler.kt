@@ -31,7 +31,7 @@ class SensorEventHandler : SensorEventListener {
      */
     override fun onSensorChanged(event: SensorEvent) {
         var unit = 1000000
-        var interval = 10.0
+        var interval = 20.0
         var rawTimestamp = System.currentTimeMillis() + (event.timestamp - SystemClock.elapsedRealtimeNanos()) / unit
         var normalizedTimestamp = Math.floor(rawTimestamp / interval)  // This line rounds the timestamp down to the nearest 10 ms
         readings.add(mapOf<String,String>(
@@ -118,6 +118,7 @@ class SensorEventHandler : SensorEventListener {
                 val scaledAccValues = accData.split(",").joinToString(",") { v ->
                     try { (v.toFloat() * -0.1).toString() } catch (e: NumberFormatException) { "NaN" }
                 }
+                // include the timestamp value
                 output += "$key,$scaledAccValues,$gravityData,$gyroData\n"
             } else {
                 output += "$key,$accData,$gravityData,$gyroData\n"
