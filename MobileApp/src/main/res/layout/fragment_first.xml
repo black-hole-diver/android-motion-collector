@@ -7,6 +7,39 @@
     tools:context=".FirstFragment">
 
     <TextView
+        android:id="@+id/gyro_y"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="gyro-y: %1$s"
+        android:textColor="@color/black"
+        android:textSize="15dp"
+        app:layout_constraintStart_toStartOf="@+id/gyro_x"
+        app:layout_constraintTop_toBottomOf="@+id/gyro_x" />
+
+    <TextView
+        android:id="@+id/gyro_z"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="gyro-z: %1$s"
+        android:textColor="@color/black"
+        android:textSize="15dp"
+        app:layout_constraintStart_toStartOf="@+id/gyro_y"
+        app:layout_constraintTop_toBottomOf="@+id/gyro_y" />
+
+    <TextView
+        android:id="@+id/gyro_x"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="gyro-x: %1$s"
+        android:textColor="@color/black"
+        android:textSize="15dp"
+        app:layout_constraintStart_toStartOf="@+id/acc_z"
+        app:layout_constraintTop_toBottomOf="@+id/acc_z" />
+
+    <TextView
         android:id="@+id/connection_status"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -36,7 +69,7 @@
         app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/refresh_connected_nodes"
-        app:layout_constraintVertical_bias="0.659" />
+        app:layout_constraintVertical_bias="0.79" />
 
     <Button
         android:id="@+id/stop_recording_btn"
@@ -48,10 +81,10 @@
         android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.497"
+        app:layout_constraintHorizontal_bias="0.476"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/refresh_connected_nodes"
-        app:layout_constraintVertical_bias="0.659" />
+        app:layout_constraintVertical_bias="0.79" />
 
     <Button
         android:id="@+id/refresh_connected_nodes"
@@ -78,5 +111,60 @@
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/acc_x"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="56dp"
+        android:layout_marginTop="200dp"
+        android:text="acc-x: %1$s"
+        android:textColor="@color/black"
+        android:textSize="15dp"
+        app:layout_constraintStart_toStartOf="@+id/refresh_connected_nodes"
+        app:layout_constraintTop_toBottomOf="@+id/refresh_connected_nodes" />
+
+    <TextView
+        android:id="@+id/acc_y"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="acc-y: %1$s"
+        android:textColor="@color/black"
+        android:textSize="15dp"
+        app:layout_constraintStart_toStartOf="@+id/acc_x"
+        app:layout_constraintTop_toBottomOf="@+id/acc_x" />
+
+    <TextView
+        android:id="@+id/acc_z"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="acc-z: %1$s"
+        android:textColor="@color/black"
+        android:textSize="15dp"
+        app:layout_constraintStart_toStartOf="@+id/acc_y"
+        app:layout_constraintTop_toBottomOf="@+id/acc_y" />
+
+    <ImageView
+        android:id="@+id/imageView2"
+        android:layout_width="103dp"
+        android:layout_height="103dp"
+        android:layout_marginTop="32dp"
+        android:layout_marginEnd="96dp"
+        app:layout_constraintEnd_toEndOf="@+id/refresh_connected_nodes"
+        app:layout_constraintTop_toBottomOf="@+id/refresh_connected_nodes"
+        tools:src="@tools:sample/avatars" />
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="148dp"
+        android:text="Prediction:"
+        android:textColor="@color/black"
+        android:textSize="20dp"
+        app:layout_constraintStart_toStartOf="@+id/refresh_connected_nodes"
+        app:layout_constraintTop_toBottomOf="@+id/refresh_connected_nodes" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
