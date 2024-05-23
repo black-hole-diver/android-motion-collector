@@ -4,6 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:layout_gravity="center"
+    android:background="@color/yellow"
     tools:context=".FirstFragment">
 
     <TextView
@@ -116,7 +118,7 @@
         android:id="@+id/acc_x"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="56dp"
+        android:layout_marginStart="44dp"
         android:layout_marginTop="200dp"
         android:text="@string/acc_x"
         android:textColor="@color/black"
@@ -147,25 +149,15 @@
         app:layout_constraintTop_toBottomOf="@+id/acc_y" />
 
     <ImageView
-        android:id="@+id/imageView2"
-        android:layout_width="103dp"
-        android:layout_height="103dp"
-        android:layout_marginTop="32dp"
-        android:layout_marginEnd="96dp"
+        android:id="@+id/imageView"
+        android:layout_width="265dp"
+        android:layout_height="165dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="12dp"
+        android:contentDescription="@string/predictionName"
+        android:scaleType="fitCenter"
+        android:src="@drawable/spider"
         app:layout_constraintEnd_toEndOf="@+id/refresh_connected_nodes"
-        app:layout_constraintTop_toBottomOf="@+id/refresh_connected_nodes"
-        tools:src="@tools:sample/avatars"
-        android:contentDescription="@string/predictionName" />
-
-    <TextView
-        android:id="@+id/textView2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="148dp"
-        android:text="@string/predictionText"
-        android:textColor="@color/black"
-        android:textSize="20dp"
-        app:layout_constraintStart_toStartOf="@+id/refresh_connected_nodes"
         app:layout_constraintTop_toBottomOf="@+id/refresh_connected_nodes" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
