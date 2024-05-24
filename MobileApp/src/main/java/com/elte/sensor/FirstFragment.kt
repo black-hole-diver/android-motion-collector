@@ -65,6 +65,15 @@ class FirstFragment : Fragment() {
 
     private val sensorEventListener = object : SensorEventListener {
         override fun onSensorChanged(event: SensorEvent) {
+            binding.availableSensors.text = "Available sensors: ${sensorManager.getSensorList(Sensor.TYPE_GYROSCOPE_UNCALIBRATED)}"
+            val gyroSensor = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE)
+
+            if (gyroSensor == null) {
+                Log.e(TAG, "Gyroscope sensor not available")
+                binding.gyroX.text = "gyro-x: Gyroscope sensor not available"
+                binding.gyroY.text = "gyro-y: Gyroscope sensor not available"
+                binding.gyroZ.text = "gyro-z: Gyroscope sensor not available"
+            }
             when (event.sensor.type) {
                 Sensor.TYPE_ACCELEROMETER -> {
                     binding.accX.text = "acc-x: ${event.values[0]}"
