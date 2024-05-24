@@ -28,6 +28,11 @@ class MobileListenerService : WearableListenerService() {
         .build()
     private val edgeImpulseAPI = retrofit.create(EdgeImpulseAPI::class.java)
 
+    override fun onCreate() {
+        super.onCreate()
+        Log.i(TAG, "Starting mobile message listener...")
+    }
+
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onChannelOpened(channel: ChannelClient.Channel) {
         Log.i(TAG, "Channel opened: " + channel.path)

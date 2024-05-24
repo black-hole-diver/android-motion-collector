@@ -6,9 +6,6 @@ import com.elte.sensor.common.Constants
 import com.elte.sensor.common.Constants.INTENT_PHONE_NODE_ID
 import com.google.android.gms.wearable.MessageEvent
 import com.google.android.gms.wearable.WearableListenerService
-import com.google.android.gms.wearable.DataEvent
-import com.google.android.gms.wearable.DataEventBuffer
-import com.google.android.gms.wearable.DataMap
 
 /**
  * The wear listener service.

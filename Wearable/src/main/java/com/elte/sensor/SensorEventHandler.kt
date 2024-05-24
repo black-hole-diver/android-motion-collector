@@ -54,24 +54,24 @@ class SensorEventHandler : SensorEventListener {
         )
 
         // Send the sensor data to the phone
-        sendSensorDataToPhone(event, normalizedTimestamp)
+//        sendSensorDataToPhone(event, normalizedTimestamp)
     }
 
-    private fun sendSensorDataToPhone(event: SensorEvent, normalizedTimestamp: Double) {
-        val dataMap = DataMap().apply {
-            putString("timestamp", normalizedTimestamp.toString())
-            putString("name", event.sensor.name)
-            putString("values", event.values.joinToString(" # "))
-            putString("accuracy", event.accuracy.toString())
-            putString("coords", event.values.size.toString())
-            putString("type", event.sensor.stringType)
-        }
-        val putDataMapReq = PutDataMapRequest.create("/sensor_data").apply {
-            dataMap.putAll(dataMap)
-        }
-        val putDataReq = putDataMapReq.asPutDataRequest()
-        Wearable.getDataClient(mainInstance).putDataItem(putDataReq)
-    }
+//    private fun sendSensorDataToPhone(event: SensorEvent, normalizedTimestamp: Double) {
+//        val dataMap = DataMap().apply {
+//            putString("timestamp", normalizedTimestamp.toString())
+//            putString("name", event.sensor.name)
+//            putString("values", event.values.joinToString(" # "))
+//            putString("accuracy", event.accuracy.toString())
+//            putString("coords", event.values.size.toString())
+//            putString("type", event.sensor.stringType)
+//        }
+//        val putDataMapReq = PutDataMapRequest.create("/sensor_data").apply {
+//            dataMap.putAll(dataMap)
+//        }
+//        val putDataReq = putDataMapReq.asPutDataRequest()
+//        Wearable.getDataClient(mainInstance).putDataItem(putDataReq)
+//    }
 
     /**
      * Called when a sensor's accuracy is changed.
