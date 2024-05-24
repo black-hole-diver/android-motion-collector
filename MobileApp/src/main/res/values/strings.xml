@@ -19,4 +19,6 @@
     <string name="predictionName">%1$s</string>
 
     <string name="predictionText">Prediction: %1$s</string>
+
+    <string name="open_downloads">Open Downloads/</string>
 </resources>

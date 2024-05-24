@@ -5,16 +5,24 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.hardware.Sensor
+import android.hardware.SensorListener
 import android.hardware.SensorManager
+import android.net.Uri
 import android.os.Bundle
+import android.os.Environment
+import android.provider.DocumentsContract
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
+import androidx.core.content.FileProvider
+import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.elte.sensor.common.Constants.MESSAGE_PATH_RECORDING_STARTED
 import com.elte.sensor.common.Constants.MESSAGE_PATH_RECORDING_STOPPED
+import com.elte.sensor.common.Constants.MESSAGE_PATH_REQUEST_SENSOR_DATA
 import com.elte.sensor.databinding.FragmentFirstBinding
 import com.google.android.gms.wearable.CapabilityClient
 import com.google.android.gms.wearable.Node
@@ -92,6 +100,12 @@ class FirstFragment : Fragment() {
         binding.gyroX.text = "gyro-x: 0.0"
         binding.gyroY.text = "gyro-y: 0.0"
         binding.gyroZ.text = "gyro-z: 0.0"
+        binding.accX.visibility = View.INVISIBLE
+        binding.accY.visibility = View.INVISIBLE
+        binding.accZ.visibility = View.INVISIBLE
+        binding.gyroX.visibility = View.INVISIBLE
+        binding.gyroY.visibility = View.INVISIBLE
+        binding.gyroZ.visibility = View.INVISIBLE
         binding.startRecordingBtn.visibility = View.VISIBLE
         binding.startRecordingBtn.setOnClickListener {
             startRecording()
@@ -100,20 +114,91 @@ class FirstFragment : Fragment() {
         binding.stopRecordingBtn.setOnClickListener {
             stopRecording()
         }
+        binding.openDownloadsBtn.visibility = View.VISIBLE
+        binding.openDownloadsBtn.setOnClickListener {
+            openDownloadsFolder()
+        }
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         findAllWearDevices()
+        updateSensorData()
     }
 
+    private fun openDownloadsFolder() {
+            try {
+            val downloadsFolder = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+            val uri: Uri? = context?.let {
+                FileProvider.getUriForFile(
+                    it,
+                    "${context!!.packageName}.provider",
+                    downloadsFolder
+                )
+            }
+
+            val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE).apply {
+                flags = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                putExtra(DocumentsContract.EXTRA_INITIAL_URI, uri)
+            }
+
+            context!!.startActivity(intent)
+        } catch (e: Exception) {
+            Toast.makeText(context, "Failed to open Downloads folder", Toast.LENGTH_SHORT).show()
+            e.printStackTrace()
+        }
+    }
+
+    private fun setTextInvisible() {
+        binding.accX.visibility = View.INVISIBLE
+        binding.accY.visibility = View.INVISIBLE
+        binding.accZ.visibility = View.INVISIBLE
+        binding.gyroX.visibility = View.INVISIBLE
+        binding.gyroY.visibility = View.INVISIBLE
+        binding.gyroZ.visibility = View.INVISIBLE
+        binding.imageView.visibility = View.INVISIBLE
+    }
+
+    private fun setTextVisible() {
+        binding.accX.visibility = View.VISIBLE
+        binding.accY.visibility = View.VISIBLE
+        binding.accZ.visibility = View.VISIBLE
+        binding.gyroX.visibility = View.VISIBLE
+        binding.gyroY.visibility = View.VISIBLE
+        binding.gyroZ.visibility = View.VISIBLE
+        binding.imageView.visibility = View.VISIBLE
+    }
+
+    private fun startRecording() {
+        try {
+            sendMessageToConnectedNodes(MESSAGE_PATH_RECORDING_STARTED)
+
+            binding.startRecordingBtn.visibility = View.INVISIBLE
+            binding.stopRecordingBtn.visibility = View.VISIBLE
+            setTextVisible()
+            binding.connectionStatus.text = "Recording in progress..."
+            val filter = IntentFilter("com.elte.sensor.SENSOR_DATA")
+            requireActivity().registerReceiver(sensorDataReceiver, filter)
+
+            connectedNodes.forEach { node ->
+                sendMessage(MESSAGE_PATH_REQUEST_SENSOR_DATA, node.id)
+            }
+
+            binding.openDownloadsBtn.visibility = View.INVISIBLE
+        } catch (throwable: Throwable) {
+            Log.e(TAG, throwable.toString())
+            binding.connectionStatus.text = throwable.message +
+                    " Make sure the watch is connected to the phone" +
+                    " via the Galaxy Watch app.."
+        }
+    }
     private fun stopRecording() {
         try {
             sendMessageToConnectedNodes(MESSAGE_PATH_RECORDING_STOPPED)
             binding.connectionStatus.text =
                 "Recording stopped. File successfully saved in Downloads folder."
-
+            setTextInvisible()
         } catch (throwable: Throwable) {
             Log.e(TAG, throwable.toString())
             binding.connectionStatus.text = throwable.message +
@@ -123,24 +208,32 @@ class FirstFragment : Fragment() {
             requireActivity().unregisterReceiver(sensorDataReceiver)
             binding.startRecordingBtn.visibility = View.VISIBLE
             binding.stopRecordingBtn.visibility = View.INVISIBLE
+            binding.openDownloadsBtn.visibility = View.VISIBLE
         }
     }
 
-    private fun startRecording() {
-        try {
-            sendMessageToConnectedNodes(MESSAGE_PATH_RECORDING_STARTED)
+    private fun updateSensorData() {
+        sensorManager = requireActivity().getSystemService(Context.SENSOR_SERVICE) as SensorManager
+        accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
+        gyroscope = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE)
+        sensorManager.registerListener(object : SensorListener {
+            override fun onSensorChanged(sensor: Int, values: FloatArray?) {
+                if (sensor == Sensor.TYPE_ACCELEROMETER) {
+                    binding.accX.text = "acc-x: ${values?.get(0)}"
+                    binding.accY.text = "acc-y: ${values?.get(1)}"
+                    binding.accZ.text = "acc-z: ${values?.get(2)}"
+                } else if (sensor == Sensor.TYPE_GYROSCOPE) {
+                    binding.gyroX.text = "gyro-x: ${values?.get(0)}"
+                    binding.gyroY.text = "gyro-y: ${values?.get(1)}"
+                    binding.gyroZ.text = "gyro-z: ${values?.get(2)}"
+                }
+                Log.d(TAG, "Sensor changed: $sensor - ${values?.contentToString()}")
+            }
 
-            binding.startRecordingBtn.visibility = View.INVISIBLE
-            binding.stopRecordingBtn.visibility = View.VISIBLE
-            binding.connectionStatus.text = "Recording in progress..."
-            val filter = IntentFilter("com.elte.sensor.SENSOR_DATA")
-            requireActivity().registerReceiver(sensorDataReceiver, filter)
-        } catch (throwable: Throwable) {
-            Log.e(TAG, throwable.toString())
-            binding.connectionStatus.text = throwable.message +
-                    " Make sure the watch is connected to the phone" +
-                    " via the Galaxy Watch app.."
-        }
+            override fun onAccuracyChanged(sensor: Int, accuracy: Int) {
+                Log.d(TAG, "Accuracy changed for: $sensor - $accuracy")
+            }
+        }, Sensor.TYPE_ACCELEROMETER or Sensor.TYPE_GYROSCOPE, SensorManager.SENSOR_DELAY_NORMAL)
     }
 
 //    private suspend fun updateSensorData() {

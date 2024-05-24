@@ -7,5 +7,5 @@ object Constants {
     const val CHANNEL_PATH_SENSOR_READING = "/channel_path_sensor_reading"
 
     const val INTENT_PHONE_NODE_ID = "phone_node_id"
-
+    const val MESSAGE_PATH_REQUEST_SENSOR_DATA = "/message_path_request_sensor_data"
 }
