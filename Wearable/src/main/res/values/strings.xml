@@ -5,4 +5,10 @@
     values-round/strings.xml for round devices.
     -->
     <string name="waiting_for_connections">Sensor Recorder</string>
+    <string name="accelerometer_x">X: %1$.2f</string>
+    <string name="accelerometer_y">Y: %1$.2f</string>
+    <string name="accelerometer_z">Z: %1$.2f</string>
+    <string name="gyroscope_x">X: %1$.2f</string>
+    <string name="gyroscope_y">Y: %1$.2f</string>
+    <string name="gyroscope_z">Z: %1$.2f</string>
 </resources>

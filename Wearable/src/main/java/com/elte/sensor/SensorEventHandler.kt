@@ -8,6 +8,11 @@ import android.net.Uri
 import android.os.SystemClock
 import android.provider.Settings.Global.putString
 import android.util.Log
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.res.stringResource
 import androidx.core.net.toUri
 import com.google.android.gms.wearable.DataMap
 import com.google.android.gms.wearable.PutDataMapRequest
@@ -23,7 +28,7 @@ import kotlin.math.roundToInt
  * @author Wittawin Panta
  */
 class SensorEventHandler : SensorEventListener {
-    private val mainInstance = MainActivity.instance
+    private var instance: MainActivity = MainActivity()
     /**
      * Stores all sensor readings in a mutable list. Each reading is a map containing
      * details such as the timestamp, sensor name, values, etc.
@@ -35,6 +40,7 @@ class SensorEventHandler : SensorEventListener {
      * @param event The sensor event.
      */
     override fun onSensorChanged(event: SensorEvent) {
+        updateEventUI(event)
         var unit = 1000000
         var interval = 20.0
         var rawTimestamp = System.currentTimeMillis() + (event.timestamp - SystemClock.elapsedRealtimeNanos()) / unit
@@ -53,8 +59,26 @@ class SensorEventHandler : SensorEventListener {
             "event from ${event.sensor.stringType} received (${event.values.joinToString(",")})"
         )
 
+
+
+        // change the acc text in the UI
+
+
         // Send the sensor data to the phone
 //        sendSensorDataToPhone(event, normalizedTimestamp)
+    }
+
+    private fun updateEventUI(event: SensorEvent) {
+        when (event.sensor.stringType) {
+            "android.sensor.accelerometer" -> {
+                Log.d(TAG, "Accelerometer values updated: ${event.values.joinToString(",")}")
+                instance.updateAccelerometerValues(event.values)
+            }
+            "android.sensor.gyroscope" -> {
+                Log.d(TAG, "Gyroscope values updated: ${event.values.joinToString(",")}")
+                instance.updateGyroscopeValues(event.values)
+            }
+        }
     }
 
 //    private fun sendSensorDataToPhone(event: SensorEvent, normalizedTimestamp: Double) {

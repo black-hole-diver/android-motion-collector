@@ -140,7 +140,7 @@ class FirstFragment : Fragment() {
         binding.gyroX.text = "gyro-x: 0.0"
         binding.gyroY.text = "gyro-y: 0.0"
         binding.gyroZ.text = "gyro-z: 0.0"
-        setTextVisible()
+        setTextInvisible()
         binding.startRecordingBtn.visibility = View.VISIBLE
         binding.startRecordingBtn.setOnClickListener {
             startRecording()

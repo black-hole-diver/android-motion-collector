@@ -18,6 +18,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -33,16 +36,27 @@ import com.elte.sensor.theme.SensorTheme
  * @author Wittawin Panta
  */
 class MainActivity : ComponentActivity() {
+    private var accelerometerValues by mutableStateOf(floatArrayOf(0f, 0f, 0f))
+    private var gyroscopeValues by mutableStateOf(floatArrayOf(0f, 0f, 0f))
     /**
      * Called when the activity is starting.
      */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         this.checkPermission()
-
         setContent {
-            WearApp()
+            WearApp(accelerometerValues, gyroscopeValues)
         }
+    }
+
+    fun updateAccelerometerValues(values: FloatArray) {
+        accelerometerValues = values
+        Log.d(TAG, "Accelerometer values updated in MAIN: ${values.joinToString(", ")}")
+    }
+
+    fun updateGyroscopeValues(values: FloatArray) {
+        gyroscopeValues = values
+        Log.d(TAG, "Gyroscope values updated in MAIN: ${values.joinToString(", ")}")
     }
 
     /**
@@ -67,7 +81,7 @@ class MainActivity : ComponentActivity() {
  * The main entry point for the Wear app.
  */
 @Composable
-fun WearApp() {
+fun WearApp(accelerometerValues: FloatArray, gyroscopeValues: FloatArray) {
     SensorTheme {
         Column(
             modifier = Modifier
@@ -79,7 +93,37 @@ fun WearApp() {
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Center,
                 color = MaterialTheme.colors.primary,
-                text = stringResource(R.string.waiting_for_connections)
+                text = "acc_x: ${accelerometerValues[0]}"
+            )
+            Text(
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Center,
+                color = MaterialTheme.colors.primary,
+                text = "acc_y: ${accelerometerValues[1]}"
+            )
+            Text(
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Center,
+                color = MaterialTheme.colors.primary,
+                text = "acc_z: ${accelerometerValues[2]}"
+            )
+            Text(
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Center,
+                color = MaterialTheme.colors.primary,
+                text = "gyr_x: ${gyroscopeValues[0]}"
+            )
+            Text(
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Center,
+                color = MaterialTheme.colors.primary,
+                text = "gyr_y: ${gyroscopeValues[1]}"
+            )
+            Text(
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Center,
+                color = MaterialTheme.colors.primary,
+                text = "gyr_z: ${gyroscopeValues[2]}"
             )
         }
     }
@@ -88,5 +132,6 @@ fun WearApp() {
 @Preview(device = Devices.WEAR_OS_SMALL_ROUND, showSystemUi = true)
 @Composable
 fun DefaultPreview() {
-    WearApp()
+    WearApp(accelerometerValues = floatArrayOf(1.0f, 2.0f, 3.0f),
+        gyroscopeValues = floatArrayOf(4.0f, 5.0f, 6.0f))
 }
