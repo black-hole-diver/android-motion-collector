@@ -65,9 +65,16 @@ class FirstFragment : Fragment() {
 
     private val sensorEventListener = object : SensorEventListener {
         override fun onSensorChanged(event: SensorEvent) {
-            binding.availableSensors.text = "Available sensors: ${sensorManager.getSensorList(Sensor.TYPE_GYROSCOPE_UNCALIBRATED)}"
+            var numberOfSensors = sensorManager.getSensorList(Sensor.TYPE_GYROSCOPE_UNCALIBRATED).size + sensorManager.getSensorList(Sensor.TYPE_GYROSCOPE).size + sensorManager.getSensorList(Sensor.TYPE_ACCELEROMETER).size + sensorManager.getSensorList(Sensor.TYPE_ACCELEROMETER_UNCALIBRATED).size
+            binding.availableSensors.text = "Available sensors: ${numberOfSensors}"
             val gyroSensor = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE)
-
+            var accSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
+            if (accSensor == null) {
+                Log.e(TAG, "Accelerometer sensor not available")
+                binding.accX.text = "acc-x: Accelerometer sensor not available"
+                binding.accY.text = "acc-y: Accelerometer sensor not available"
+                binding.accZ.text = "acc-z: Accelerometer sensor not available"
+            }
             if (gyroSensor == null) {
                 Log.e(TAG, "Gyroscope sensor not available")
                 binding.gyroX.text = "gyro-x: Gyroscope sensor not available"
@@ -133,12 +140,7 @@ class FirstFragment : Fragment() {
         binding.gyroX.text = "gyro-x: 0.0"
         binding.gyroY.text = "gyro-y: 0.0"
         binding.gyroZ.text = "gyro-z: 0.0"
-        binding.accX.visibility = View.INVISIBLE
-        binding.accY.visibility = View.INVISIBLE
-        binding.accZ.visibility = View.INVISIBLE
-        binding.gyroX.visibility = View.INVISIBLE
-        binding.gyroY.visibility = View.INVISIBLE
-        binding.gyroZ.visibility = View.INVISIBLE
+        setTextVisible()
         binding.startRecordingBtn.visibility = View.VISIBLE
         binding.startRecordingBtn.setOnClickListener {
             startRecording()
