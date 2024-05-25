@@ -1,5 +1,6 @@
 package com.elte.sensor
 
+import android.content.Context
 import android.content.Intent
 import android.util.Log
 import com.elte.sensor.common.Constants
@@ -43,6 +44,7 @@ class WearListenerService : WearableListenerService() {
         }
     }
     companion object {
+        val instance = WearListenerService()
         private const val TAG = "ListenerService"
     }
 }

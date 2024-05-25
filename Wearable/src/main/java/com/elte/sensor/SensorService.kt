@@ -10,15 +10,20 @@ import com.elte.sensor.common.Constants
 import com.google.android.gms.wearable.Wearable
 
 /**
- * Sensor service.
+ * Sensor service of the wearable.
  * @author Wittawin Panta
- * @version 1.0 2024-04-13
+ * @version 2.0 2024-05-27
  */
 class SensorService : Service() {
     /**
      * Called when the service is starting.
      */
-    private val sensorEventHandler = SensorEventHandler.instance
+    private lateinit var sensorEventHandler: SensorEventHandler
+
+    override fun onCreate() {
+        super.onCreate()
+        sensorEventHandler = SensorEventHandler(this)
+    }
 
     /**
      * The ID of the phone node.
@@ -33,6 +38,7 @@ class SensorService : Service() {
      * @return The return value indicates what semantics the system should use for the service's current started state.
      */
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
+        //sensorEventHandler.clearReadings()
         Log.d(TAG, "Starting...")
         phoneNodeId = intent.getStringExtra(Constants.INTENT_PHONE_NODE_ID)
         return if (phoneNodeId == null) {
@@ -76,7 +82,6 @@ class SensorService : Service() {
      * Registers the required sensors.
      */
     private fun startRecording() {
-        sensorEventHandler.clearReadings()
         val sensorManager = getSystemService(SENSOR_SERVICE) as SensorManager
         val availableSensors = sensorManager.getSensorList(Sensor.TYPE_ALL)
             .map { i -> i.type }

@@ -49,11 +49,19 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    /**
+     * Updates the accelerometer values.
+     * @param values the accelerometer values to update
+     */
     fun updateAccelerometerValues(values: FloatArray) {
         accelerometerValues = values
         Log.d(TAG, "Accelerometer values updated in MAIN: ${values.joinToString(", ")}")
     }
 
+    /**
+     * Updates the gyroscope values.
+     * @param values the gyroscope values to update
+     */
     fun updateGyroscopeValues(values: FloatArray) {
         gyroscopeValues = values
         Log.d(TAG, "Gyroscope values updated in MAIN: ${values.joinToString(", ")}")
@@ -78,7 +86,9 @@ class MainActivity : ComponentActivity() {
 }
 
 /**
- * The main entry point for the Wear app.
+ * The main UI entry point for the Wear app.
+ * @param accelerometerValues the accelerometer values to display
+ * @param gyroscopeValues the gyroscope values to display
  */
 @Composable
 fun WearApp(accelerometerValues: FloatArray, gyroscopeValues: FloatArray) {
@@ -129,6 +139,9 @@ fun WearApp(accelerometerValues: FloatArray, gyroscopeValues: FloatArray) {
     }
 }
 
+/**
+ * Preview the Wear app.
+ */
 @Preview(device = Devices.WEAR_OS_SMALL_ROUND, showSystemUi = true)
 @Composable
 fun DefaultPreview() {

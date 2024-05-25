@@ -6,20 +6,15 @@ import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.net.Uri
 import android.os.SystemClock
-import android.provider.Settings.Global.putString
 import android.util.Log
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.res.stringResource
 import androidx.core.net.toUri
-import com.google.android.gms.wearable.DataMap
-import com.google.android.gms.wearable.PutDataMapRequest
-import com.google.android.gms.wearable.Wearable
-import java.io.File
-import java.util.TreeMap
+import com.elte.sensor.ml.Trained
+import org.tensorflow.lite.DataType
 import kotlin.math.roundToInt
+import org.tensorflow.lite.support.tensorbuffer.TensorBuffer
+import java.io.File
+import java.nio.ByteBuffer
+import java.nio.ByteOrder
 
 /**
  * Handles sensor events, logs them, and creates a CSV file with the sensor data.
@@ -27,13 +22,13 @@ import kotlin.math.roundToInt
  * @version 1.0 2024-04-13
  * @author Wittawin Panta
  */
-class SensorEventHandler : SensorEventListener {
-    private var instance: MainActivity = MainActivity()
-    /**
-     * Stores all sensor readings in a mutable list. Each reading is a map containing
-     * details such as the timestamp, sensor name, values, etc.
-     */
+class SensorEventHandler(context: Context) : SensorEventListener {
     private val readings: MutableList<Map<String, String>> = ArrayList()
+    private var model: Trained = Trained.newInstance(context)
+    val byteBuffer = ByteBuffer.allocateDirect(222 * 4).order(ByteOrder.nativeOrder())
+    private var bufferIndex = 0
+    private val totalReadingsNeeded = 222
+    private var bufferCapacity = 222 * 4
 
     /**
      * Called when there is a new sensor event.
@@ -59,24 +54,52 @@ class SensorEventHandler : SensorEventListener {
             "event from ${event.sensor.stringType} received (${event.values.joinToString(",")})"
         )
 
+        if (bufferIndex + event.values.size > 222) {
+            byteBuffer.flip()  // Prepare the buffer for reading
+            runInference()
+            byteBuffer.clear()  // Clear the buffer after processing
+            bufferIndex = 0     // Reset the index for new data
+        }
 
-
-        // change the acc text in the UI
-
-
+        event.values.forEach { value ->
+            if (bufferIndex < 222) {
+                byteBuffer.putFloat(value)
+                bufferIndex++
+            }
+        }
         // Send the sensor data to the phone
-//        sendSensorDataToPhone(event, normalizedTimestamp)
+        // sendSensorDataToPhone(event, normalizedTimestamp)
+    }
+
+    private fun runInference() {
+        Log.d(MODEL_TAG, "Running inference on the model.")
+        val inputFeature0 = TensorBuffer.createFixedSize(intArrayOf(1, totalReadingsNeeded), DataType.FLOAT32)
+        inputFeature0.loadBuffer(byteBuffer)
+        Log.d(MODEL_TAG, "Model input: ${inputFeature0.floatArray.joinToString(",")}")
+
+        val outputs = model.process(inputFeature0)
+        handleModelOutput(outputs.outputFeature0AsTensorBuffer)
+    }
+
+    private fun handleModelOutput(outputFeature0: TensorBuffer) {
+        val probabilities = outputFeature0.floatArray
+        val maxIndex = probabilities.indices.maxByOrNull { probabilities[it] } ?: -1
+        val classNames = arrayOf("Clapping", "Drawing", "Drinking", "Glass_grabbing", "Goliath", "Hopscotch", "Knee_other", "Puding_eat")
+
+        if (maxIndex != -1) {
+            Log.d(MODEL_TAG, "Predicted Activity: ${classNames[maxIndex]} with Confidence: ${probabilities[maxIndex]}")
+        }
     }
 
     private fun updateEventUI(event: SensorEvent) {
         when (event.sensor.stringType) {
             "android.sensor.accelerometer" -> {
                 Log.d(TAG, "Accelerometer values updated: ${event.values.joinToString(",")}")
-                instance.updateAccelerometerValues(event.values)
+                MainActivity.instance.updateAccelerometerValues(event.values)
             }
             "android.sensor.gyroscope" -> {
                 Log.d(TAG, "Gyroscope values updated: ${event.values.joinToString(",")}")
-                instance.updateGyroscopeValues(event.values)
+                MainActivity.instance.updateGyroscopeValues(event.values)
             }
         }
     }
@@ -167,7 +190,6 @@ class SensorEventHandler : SensorEventListener {
                 val scaledAccValues = accData.split(",").joinToString(",") { v ->
                     try { (v.toFloat() * -0.1).toString() } catch (e: NumberFormatException) { "NaN" }
                 }
-                // include the timestamp value
                 output += "$key,$scaledAccValues,$gravityData,$gyroData\n"
             } else {
                 output += "$key,$accData,$gravityData,$gyroData\n"
@@ -178,7 +200,8 @@ class SensorEventHandler : SensorEventListener {
     }
 
     companion object {
-        val instance = SensorEventHandler()
+        //val instance = SensorEventHandler(con)
         private const val TAG = "SensorEventHandler"
+        private const val MODEL_TAG = "TF Lite"
     }
 }
