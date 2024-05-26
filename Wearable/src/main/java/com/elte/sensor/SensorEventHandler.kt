@@ -29,6 +29,7 @@ class SensorEventHandler(context: Context) : SensorEventListener {
     private var bufferIndex = 0
     private val totalReadingsNeeded = 222
     private var bufferCapacity = 222 * 4
+    private var prediction = ""
 
     /**
      * Called when there is a new sensor event.
@@ -88,7 +89,12 @@ class SensorEventHandler(context: Context) : SensorEventListener {
 
         if (maxIndex != -1) {
             Log.d(MODEL_TAG, "Predicted Activity: ${classNames[maxIndex]} with Confidence: ${probabilities[maxIndex]}")
+            prediction = "${classNames[maxIndex]} with Confidence: ${probabilities[maxIndex]}"
         }
+    }
+
+    fun getPrediction(): ByteArray {
+        return prediction.toByteArray()
     }
 
     private fun updateEventUI(event: SensorEvent) {
@@ -103,22 +109,6 @@ class SensorEventHandler(context: Context) : SensorEventListener {
             }
         }
     }
-
-//    private fun sendSensorDataToPhone(event: SensorEvent, normalizedTimestamp: Double) {
-//        val dataMap = DataMap().apply {
-//            putString("timestamp", normalizedTimestamp.toString())
-//            putString("name", event.sensor.name)
-//            putString("values", event.values.joinToString(" # "))
-//            putString("accuracy", event.accuracy.toString())
-//            putString("coords", event.values.size.toString())
-//            putString("type", event.sensor.stringType)
-//        }
-//        val putDataMapReq = PutDataMapRequest.create("/sensor_data").apply {
-//            dataMap.putAll(dataMap)
-//        }
-//        val putDataReq = putDataMapReq.asPutDataRequest()
-//        Wearable.getDataClient(mainInstance).putDataItem(putDataReq)
-//    }
 
     /**
      * Called when a sensor's accuracy is changed.
@@ -200,7 +190,6 @@ class SensorEventHandler(context: Context) : SensorEventListener {
     }
 
     companion object {
-        //val instance = SensorEventHandler(con)
         private const val TAG = "SensorEventHandler"
         private const val MODEL_TAG = "TF Lite"
     }

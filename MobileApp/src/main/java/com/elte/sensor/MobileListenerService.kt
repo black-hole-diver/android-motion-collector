@@ -7,8 +7,14 @@ import android.os.Environment
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.net.toUri
+import com.elte.sensor.common.Constants
 import com.elte.sensor.databinding.FragmentFirstBinding
 import com.google.android.gms.wearable.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.io.File
@@ -37,9 +43,50 @@ class MobileListenerService : WearableListenerService() {
     override fun onChannelOpened(channel: ChannelClient.Channel) {
         Log.i(TAG, "Channel opened: " + channel.path)
         Log.i(TAG, "Receiving data from wearable...")
-        val fileUri = this.createFile()
-        Wearable.getChannelClient(application).receiveFile(channel, fileUri, false)
-        uploadFileToEdgeImpulse(File(fileUri.path!!))
+
+        when (channel.path) {
+            Constants.CHANNEL_PATH_SENSOR_READING -> {
+                Log.i(TAG, "Make a file from sensor data...")
+                val fileUri = this.createFile()
+                Wearable.getChannelClient(application).receiveFile(channel, fileUri, false)
+                uploadFileToEdgeImpulse(File(fileUri.path!!))
+            }
+            Constants.CHANNEL_PATH_PREDICTION -> {
+                Log.i(TAG, "Receiving prediction from wearable...")
+                CoroutineScope(Dispatchers.IO).launch {
+                    try {
+                        val inputStream = Wearable.getChannelClient(application).getInputStream(channel).await()
+                        inputStream.use { stream ->
+                            val predictionBytes = stream.readBytes()
+                            val prediction = predictionBytes.toString(Charsets.UTF_8)
+                            withContext(Dispatchers.Main) {
+                                Log.i(TAG, "Received prediction: $prediction")
+                            }
+                        }
+                    } catch (e: Exception) {
+                        Log.e(TAG, "Error reading prediction data: ${e.localizedMessage}")
+                    }
+                }
+            }
+            Constants.CHANNEL_SENSOR_NUMBER -> {
+                Log.i(TAG, "Receiving sensor number from wearable...")
+                CoroutineScope(Dispatchers.IO).launch {
+                    try {
+                        val inputStream = Wearable.getChannelClient(application).getInputStream(channel).await()
+                        inputStream.use { stream ->
+                            val sensorNumberBytes = stream.readBytes()
+                            val sensorNumber = sensorNumberBytes.toString(Charsets.UTF_8)
+                            withContext(Dispatchers.Main) {
+                                Log.i(TAG, "Received sensor number: $sensorNumber")
+                            }
+                            binding.availableSensors.text = sensorNumber
+                        }
+                    } catch (e: Exception) {
+                        Log.e(TAG, "Error reading sensor number data: ${e.localizedMessage}")
+                    }
+                }
+            }
+        }
     }
 
     override fun onDataChanged(dataEvents: DataEventBuffer) {

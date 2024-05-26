@@ -1,25 +1,21 @@
 package com.elte.sensor
 
-import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
-import android.hardware.SensorListener
 import android.hardware.SensorManager
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
-import android.provider.DocumentsContract
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.content.FileProvider
-import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.elte.sensor.common.Constants.MESSAGE_PATH_RECORDING_STARTED
@@ -31,7 +27,6 @@ import com.google.android.gms.wearable.Node
 import com.google.android.gms.wearable.Wearable
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
-import com.google.android.gms.wearable.*
 
 /**
  * First fragment.
@@ -47,21 +42,6 @@ class FirstFragment : Fragment() {
     private lateinit var sensorManager: SensorManager
     private var accelerometer: Sensor? = null
     private var gyroscope: Sensor? = null
-
-    private val sensorDataReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent?) {
-            if (intent != null) {
-                val timestamp = intent.getStringExtra("timestamp")
-                val name = intent.getStringExtra("name")
-                val values = intent.getStringExtra("values")
-                val accuracy = intent.getStringExtra("accuracy")
-                val coords = intent.getStringExtra("coords")
-                val type = intent.getStringExtra("type")
-
-                updateSensorData(timestamp, name, values, accuracy, coords, type)
-            }
-        }
-    }
 
     private val sensorEventListener = object : SensorEventListener {
         override fun onSensorChanged(event: SensorEvent) {
@@ -232,7 +212,6 @@ class FirstFragment : Fragment() {
             setTextVisible()
             binding.connectionStatus.text = "Recording in progress..."
             val filter = IntentFilter("com.elte.sensor.SENSOR_DATA")
-            requireActivity().registerReceiver(sensorDataReceiver, filter)
 
             connectedNodes.forEach { node ->
                 sendMessage(MESSAGE_PATH_REQUEST_SENSOR_DATA, node.id)
@@ -261,27 +240,11 @@ class FirstFragment : Fragment() {
                     " via the Galaxy Watch app."
         } finally {
             isRecording = false
-            requireActivity().unregisterReceiver(sensorDataReceiver)
             binding.startRecordingBtn.visibility = View.VISIBLE
             binding.stopRecordingBtn.visibility = View.INVISIBLE
             binding.openDownloadsBtn.visibility = View.VISIBLE
         }
     }
-//    private suspend fun updateSensorData() {
-//        try {
-//            val sensorsClient = Wearable.getSensorsClient(requireActivity())
-//            val accelerometerData = sensorsClient.getData("ACCELEROMETER").await()
-//            val gyroscopeData = sensorsClient.getData("GYROSCOPE").await()
-//            binding.accX.text = "acc-x: ${accelerometerData.x}"
-//            binding.accY.text = "acc-y: ${accelerometerData.y}"
-//            binding.accZ.text = "acc-z: ${accelerometerData.z}"
-//            binding.gyroX.text = "gyro-x: ${gyroscopeData.x}"
-//            binding.gyroY.text = "gyro-y: ${gyroscopeData.y}"
-//            binding.gyroZ.text = "gyro-z: ${gyroscopeData.z}"
-//        } catch (e: Exception) {
-//            Log.e(TAG, "Error updating sensor data", e)
-//        }
-//    }
 
     private fun findAllWearDevices() {
         lifecycleScope.launch {

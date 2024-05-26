@@ -7,7 +7,13 @@ import android.hardware.SensorManager
 import android.os.IBinder
 import android.util.Log
 import com.elte.sensor.common.Constants
+import com.google.android.gms.tasks.Tasks
 import com.google.android.gms.wearable.Wearable
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
+import java.io.IOException
 
 /**
  * Sensor service of the wearable.
@@ -19,6 +25,7 @@ class SensorService : Service() {
      * Called when the service is starting.
      */
     private lateinit var sensorEventHandler: SensorEventHandler
+    private var isRunning = false
 
     override fun onCreate() {
         super.onCreate()
@@ -55,6 +62,7 @@ class SensorService : Service() {
      * Called when the service is no longer used and is being destroyed.
      */
     override fun onDestroy() {
+        isRunning = false
         Log.d(TAG, "Stopping...")
         val sensorManager = getSystemService(SENSOR_SERVICE) as SensorManager
         sensorManager.unregisterListener(sensorEventHandler)
@@ -82,6 +90,7 @@ class SensorService : Service() {
      * Registers the required sensors.
      */
     private fun startRecording() {
+        isRunning = true
         val sensorManager = getSystemService(SENSOR_SERVICE) as SensorManager
         val availableSensors = sensorManager.getSensorList(Sensor.TYPE_ALL)
             .map { i -> i.type }
@@ -95,6 +104,76 @@ class SensorService : Service() {
             val sensor: Sensor = sensorManager.getDefaultSensor(sensorType)
             sensorManager.registerListener(sensorEventHandler, sensor, SAMPLE_RATE)
         }
+
+        val channelClient = Wearable.getChannelClient(this@SensorService)
+        val channelFuture = channelClient.openChannel(phoneNodeId!!, Constants.CHANNEL_SENSOR_NUMBER)
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val channel = Tasks.await(channelFuture)
+                channelClient.getOutputStream(channel).addOnSuccessListener { outputStream ->
+                    try {
+                        val sensorNumber = availableSensors.size.toString()
+                        outputStream.write(sensorNumber.toByteArray(Charsets.UTF_8))
+                        outputStream.flush()
+                        Log.i(TAG, "Number of sensors $sensorNumber has been sent.")
+                    } finally {
+                        try {
+                            outputStream.close()
+                        } catch (e: IOException) {
+                            Log.e(TAG, "Failed to close OutputStream: ${e.localizedMessage}")
+                        }
+                    }
+                }.addOnFailureListener { exception ->
+                    Log.e(TAG, "Failed to open OutputStream: ${exception.localizedMessage}")
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Error while opening channel: ${e.localizedMessage}")
+            }
+        }
+
+        Thread(Runnable{
+            while (isRunning) {
+                try {
+                    Thread.sleep(1000)  // Delay between sends
+                    Log.d(TAG, "Send prediction to phone")
+
+                    val channelClient = Wearable.getChannelClient(this@SensorService)
+                    val channelFuture = channelClient.openChannel(phoneNodeId!!, Constants.CHANNEL_PATH_PREDICTION)
+                    val channel = Tasks.await(channelFuture)
+
+                    CoroutineScope(Dispatchers.IO).launch {
+                        try {
+                            channelClient.getOutputStream(channel).addOnSuccessListener { outputStream ->
+                                try {
+                                    val predictionData = sensorEventHandler.getPrediction()
+                                    outputStream.write(predictionData)
+                                    outputStream.flush()
+                                    Log.i(TAG, "The prediction ${predictionData.size} bytes has been sent.")
+                                    Log.i(TAG, "Successfully sent prediction.")
+                                } catch (e: IOException) {
+                                    Log.e(TAG, "Failed to write data to channel: ${e.localizedMessage}")
+                                } finally {
+                                    try {
+                                        outputStream.close()
+                                    } catch (e: IOException) {
+                                        Log.e(TAG, "Failed to close OutputStream: ${e.localizedMessage}")
+                                    }
+                                }
+                            }.addOnFailureListener { exception ->
+                                Log.e(TAG, "Failed to obtain OutputStream: ${exception.localizedMessage}")
+                            }
+                        } catch (e: Exception) {
+                            Log.e(TAG, "Error while sending prediction: ${e.localizedMessage}")
+                        }
+                    }
+                } catch (e: InterruptedException) {
+                    Thread.currentThread().interrupt()  // Restore interrupted status
+                    Log.e(TAG, "Broadcast thread was interrupted", e)
+                } catch (e: Exception) {
+                    Log.e(TAG, "Exception in broadcast thread: ${e.localizedMessage}")
+                }
+            }
+        }).start()
     }
 
     companion object {
