@@ -18,7 +18,7 @@ import java.io.IOException
 /**
  * Sensor service of the wearable.
  * @author Wittawin Panta
- * @version 2.0 2024-05-27
+ * @version 2.0 2024-05-26
  */
 class SensorService : Service() {
     private lateinit var sensorEventHandler: SensorEventHandler

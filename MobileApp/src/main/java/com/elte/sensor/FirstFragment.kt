@@ -25,7 +25,7 @@ import java.util.concurrent.TimeUnit
 
 /**
  * First fragment.
- * @version 1.0 2024-04-13
+ * @version 2.0 2024-05-26
  * @author Wittawin Panta
  */
 class FirstFragment : Fragment() {

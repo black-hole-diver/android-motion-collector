@@ -33,7 +33,7 @@ import com.elte.sensor.theme.SensorTheme
 
 /**
  * Main activity of the Wear app.
- * @version 1.0 2024-04-13
+ * @version 2.0 2024-05-26
  * @author Wittawin Panta
  */
 class MainActivity : ComponentActivity() {

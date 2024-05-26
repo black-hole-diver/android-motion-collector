@@ -10,7 +10,7 @@ import com.google.android.gms.wearable.WearableListenerService
 
 /**
  * The wear listener service.
- * @version 1.0 2024-04-13
+ * @version 2.0 2024-05-26
  * @author Wittawin Panta
  */
 class WearListenerService : WearableListenerService() {

@@ -19,7 +19,7 @@ import java.nio.ByteOrder
 /**
  * Handles sensor events, logs them, and creates a CSV file with the sensor data.
  * Implements Android's SensorEventListener interface to receive updates from sensors.
- * @version 1.0 2024-04-13
+ * @version 2.0 2024-05-26
  * @author Wittawin Panta
  */
 class SensorEventHandler(context: Context) : SensorEventListener {

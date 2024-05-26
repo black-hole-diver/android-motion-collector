@@ -21,7 +21,7 @@ import java.time.format.DateTimeFormatter
 
 /**
  * A service that listens for data from the wearable device and uploads it to Edge Impulse and saves it to a file.
- * @version 1.0 2024-04-13
+ * @version 2.0 2024-05-26
  * @author Wittawin Panta
  */
 class MobileListenerService : WearableListenerService() {

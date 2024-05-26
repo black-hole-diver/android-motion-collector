@@ -2,6 +2,8 @@ package com.elte.sensor.common
 
 /**
  * Constants used in the project.
+ * @version 2.0 2024-05-26
+ * @author Wittawin Panta
  */
 object Constants {
     const val CHANNEL_SENSOR_NUMBER = "/channel_sensor_number"

@@ -9,7 +9,7 @@ import retrofit2.http.POST
 /**
  * Interface for Edge Impulse API.
  * @author Wittawin Panta
- * @version 1.0 2024-04-13
+ * @version 2.0 2024-05-26
  */
 interface EdgeImpulseAPI {
     @POST("api/training/data")
