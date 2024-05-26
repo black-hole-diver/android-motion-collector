@@ -1,13 +1,8 @@
 package com.elte.sensor
 
-import android.hardware.Sensor
-import android.hardware.SensorEvent
-import android.hardware.SensorEventListener
-import android.hardware.SensorManager
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.elte.sensor.databinding.ActivityMainBinding
-import com.google.android.gms.wearable.DataMap
 
 /**
  * The main activity of the app.

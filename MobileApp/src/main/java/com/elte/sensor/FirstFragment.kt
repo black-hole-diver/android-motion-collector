@@ -1,12 +1,6 @@
 package com.elte.sensor
 
-import android.content.Context
 import android.content.Intent
-import android.content.IntentFilter
-import android.hardware.Sensor
-import android.hardware.SensorEvent
-import android.hardware.SensorEventListener
-import android.hardware.SensorManager
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
@@ -20,14 +14,12 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.elte.sensor.common.Constants.MESSAGE_PATH_RECORDING_STARTED
 import com.elte.sensor.common.Constants.MESSAGE_PATH_RECORDING_STOPPED
-import com.elte.sensor.common.Constants.MESSAGE_PATH_REQUEST_SENSOR_DATA
 import com.elte.sensor.databinding.FragmentFirstBinding
 import com.google.android.gms.wearable.CapabilityClient
 import com.google.android.gms.wearable.Node
 import com.google.android.gms.wearable.Wearable
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
-import org.checkerframework.common.value.qual.StaticallyExecutable
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
@@ -43,6 +35,9 @@ class FirstFragment : Fragment() {
     private var isRecording = false
     var timeAfterRecord = 0
 
+    /**
+     * Called to have the fragment instantiate its user interface view.
+     */
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -71,11 +66,19 @@ class FirstFragment : Fragment() {
         return binding.root
     }
 
+    /**
+     * Called when the fragment's activity has been created and this fragment's view hierarchy instantiated.
+     * @param view The created view.
+     * @param savedInstanceState If the fragment is being re-created from a previous saved state, this is the state.
+     */
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         findAllWearDevices()
     }
 
+    /**
+     * Opens the Downloads folder.
+     */
     private fun openDownloadsFolder() {
         try {
             val downloadsFolder = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
@@ -108,11 +111,17 @@ class FirstFragment : Fragment() {
         binding.predictedText.visibility = View.INVISIBLE
     }
 
+    /**
+     * Sets the text view to visible.
+     */
     private fun setTextVisible() {
         binding.imageView.visibility = View.VISIBLE
         binding.predictedText.visibility = View.VISIBLE
     }
 
+    /**
+     * Starts the recording.
+     */
     private fun startRecording() {
         try {
             isRecording = true
@@ -134,11 +143,14 @@ class FirstFragment : Fragment() {
         }
     }
 
+    /**
+     * Updates the recording time.
+     */
     private fun recordingTimeUIStart() {
         val scheduler = Executors.newSingleThreadScheduledExecutor()
         scheduler.scheduleAtFixedRate({
             if (isRecording) {
-                timeAfterRecord += 1
+                timeAfterRecord += 100
                 val hours = timeAfterRecord / 3600000
                 val minutes = (timeAfterRecord / 60000) % 60
                 val seconds = (timeAfterRecord / 1000) % 60
@@ -155,8 +167,11 @@ class FirstFragment : Fragment() {
         }, 0, 100, TimeUnit.MILLISECONDS)
     }
 
+    /**
+     * Updates the prediction.
+     */
     private fun updatePrediction(){
-        Thread(Runnable {
+        Thread {
             while (isRecording) {
                 try {
                     Thread.sleep(1000)
@@ -165,15 +180,15 @@ class FirstFragment : Fragment() {
                         binding.imageView.setImageResource(R.drawable.clapping)
                     } else if (prediction.contains("Hopscotch")) {
                         binding.imageView.setImageResource(R.drawable.hopscotch)
-                    } else if ( prediction.contains("Bear") ) {
+                    } else if (prediction.contains("Bear")) {
                         binding.imageView.setImageResource(R.drawable.bear)
-                    } else if ( prediction.contains("Drawing") ) {
+                    } else if (prediction.contains("Drawing")) {
                         binding.imageView.setImageResource(R.drawable.drawing)
-                    } else if ( prediction.contains("Goliath") ) {
+                    } else if (prediction.contains("Goliath")) {
                         binding.imageView.setImageResource(R.drawable.goliath)
-                    } else if ( prediction.contains("Puding_Eat") ) {
+                    } else if (prediction.contains("Puding_Eat")) {
                         binding.imageView.setImageResource(R.drawable.pudding_eat)
-                    } else if ( prediction.contains("Spider") ) {
+                    } else if (prediction.contains("Spider")) {
                         binding.imageView.setImageResource(R.drawable.spider)
                     } else {
                         binding.predictedText.text = "Unknown Movement"
@@ -183,8 +198,12 @@ class FirstFragment : Fragment() {
                     Log.e(TAG, "Error sending prediction to phone", e)
                 }
             }
-        }).start()
+        }.start()
     }
+
+    /**
+     * Stops the recording.
+     */
     private fun stopRecording() {
         try {
             sendMessageToConnectedNodes(MESSAGE_PATH_RECORDING_STOPPED)
@@ -205,6 +224,9 @@ class FirstFragment : Fragment() {
         }
     }
 
+    /**
+     * Finds all the wear devices.
+     */
     private fun findAllWearDevices() {
         lifecycleScope.launch {
             try {
@@ -225,9 +247,7 @@ class FirstFragment : Fragment() {
                     binding.connectionStatus.text = "Watch connected:\n$nodeList"
                 } else {
                     binding.startRecordingBtn.isEnabled = false
-                    binding.connectionStatus.text = "No connected device found." +
-                            " Make sure the watch is connected to the phone" +
-                            " via the Galaxy Watch app.."
+                    binding.connectionStatus.text = "No connected device found. Make sure the watch is connected to the phone via the Galaxy Watch app.."
                 }
             } catch (throwable: Throwable) {
                 Log.e(TAG, throwable.toString())
@@ -238,15 +258,26 @@ class FirstFragment : Fragment() {
         }
     }
 
+    /**
+     * Sends a message to all connected nodes.
+     * @param message The message to send.
+     */
     private fun sendMessageToConnectedNodes(message: String) {
         connectedNodes.forEach { sendMessage(message, it.id) }
     }
 
+    /**
+     * Sends a message to a specific node.
+     * @param message The message to send.
+     * @param watchNodeId The node ID of the watch.
+     */
     private fun sendMessage(message: String, watchNodeId: String) {
         lifecycleScope.launch {
             Log.i(TAG, "Sending message: $message to $watchNodeId")
-            val messageId = Wearable.getMessageClient(activity)
-                .sendMessage(watchNodeId, message, byteArrayOf()).await()
+            val messageId = activity?.let {
+                Wearable.getMessageClient(it)
+                    .sendMessage(watchNodeId, message, byteArrayOf()).await()
+            }
             Log.i(TAG, "messageResult $messageId")
         }
     }

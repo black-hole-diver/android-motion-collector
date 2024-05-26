@@ -28,7 +28,6 @@ class SensorEventHandler(context: Context) : SensorEventListener {
     val byteBuffer = ByteBuffer.allocateDirect(222 * 4).order(ByteOrder.nativeOrder())
     private var bufferIndex = 0
     private val totalReadingsNeeded = 222
-    private var bufferCapacity = 222 * 4
     private var prediction = ""
 
     /**
@@ -36,7 +35,6 @@ class SensorEventHandler(context: Context) : SensorEventListener {
      * @param event The sensor event.
      */
     override fun onSensorChanged(event: SensorEvent) {
-        updateEventUI(event)
         var unit = 1000000
         var interval = 20.0
         var rawTimestamp = System.currentTimeMillis() + (event.timestamp - SystemClock.elapsedRealtimeNanos()) / unit
@@ -56,10 +54,10 @@ class SensorEventHandler(context: Context) : SensorEventListener {
         )
 
         if (bufferIndex + event.values.size > 222) {
-            byteBuffer.flip()  // Prepare the buffer for reading
+            byteBuffer.flip()
             runInference()
-            byteBuffer.clear()  // Clear the buffer after processing
-            bufferIndex = 0     // Reset the index for new data
+            byteBuffer.clear()
+            bufferIndex = 0
         }
 
         event.values.forEach { value ->
@@ -68,10 +66,11 @@ class SensorEventHandler(context: Context) : SensorEventListener {
                 bufferIndex++
             }
         }
-        // Send the sensor data to the phone
-        // sendSensorDataToPhone(event, normalizedTimestamp)
     }
 
+    /**
+     * Runs inference on the model.
+     */
     private fun runInference() {
         Log.d(MODEL_TAG, "Running inference on the model.")
         val inputFeature0 = TensorBuffer.createFixedSize(intArrayOf(1, totalReadingsNeeded), DataType.FLOAT32)
@@ -82,6 +81,10 @@ class SensorEventHandler(context: Context) : SensorEventListener {
         handleModelOutput(outputs.outputFeature0AsTensorBuffer)
     }
 
+    /**
+     * Handles the output of the model.
+     * @param outputFeature0 The output of the model.
+     */
     private fun handleModelOutput(outputFeature0: TensorBuffer) {
         val probabilities = outputFeature0.floatArray
         val maxIndex = probabilities.indices.maxByOrNull { probabilities[it] } ?: -1
@@ -93,21 +96,12 @@ class SensorEventHandler(context: Context) : SensorEventListener {
         }
     }
 
+    /**
+     * Returns the prediction from the model.
+     * @return The prediction from the model.
+     */
     fun getPrediction(): ByteArray {
         return prediction.toByteArray()
-    }
-
-    private fun updateEventUI(event: SensorEvent) {
-        when (event.sensor.stringType) {
-            "android.sensor.accelerometer" -> {
-                Log.d(TAG, "Accelerometer values updated: ${event.values.joinToString(",")}")
-                MainActivity.instance.updateAccelerometerValues(event.values)
-            }
-            "android.sensor.gyroscope" -> {
-                Log.d(TAG, "Gyroscope values updated: ${event.values.joinToString(",")}")
-                MainActivity.instance.updateGyroscopeValues(event.values)
-            }
-        }
     }
 
     /**

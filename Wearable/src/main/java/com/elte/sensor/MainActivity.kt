@@ -26,6 +26,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.sp
 import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.Text
 import com.elte.sensor.theme.SensorTheme
@@ -47,24 +48,6 @@ class MainActivity : ComponentActivity() {
         setContent {
             WearApp(accelerometerValues, gyroscopeValues)
         }
-    }
-
-    /**
-     * Updates the accelerometer values.
-     * @param values the accelerometer values to update
-     */
-    fun updateAccelerometerValues(values: FloatArray) {
-        accelerometerValues = values
-        Log.d(TAG, "Accelerometer values updated in MAIN: ${values.joinToString(", ")}")
-    }
-
-    /**
-     * Updates the gyroscope values.
-     * @param values the gyroscope values to update
-     */
-    fun updateGyroscopeValues(values: FloatArray) {
-        gyroscopeValues = values
-        Log.d(TAG, "Gyroscope values updated in MAIN: ${values.joinToString(", ")}")
     }
 
     /**
@@ -103,37 +86,22 @@ fun WearApp(accelerometerValues: FloatArray, gyroscopeValues: FloatArray) {
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Center,
                 color = MaterialTheme.colors.primary,
-                text = "acc_x: ${accelerometerValues[0]}"
+                fontSize = 15.sp,
+                text = "Android Motion Collector"
+            )
+            Text(
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Center,
+                fontSize = 10.sp,
+                color = MaterialTheme.colors.primary,
+                text = "Real-time movement prediction"
             )
             Text(
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Center,
                 color = MaterialTheme.colors.primary,
-                text = "acc_y: ${accelerometerValues[1]}"
-            )
-            Text(
-                modifier = Modifier.fillMaxWidth(),
-                textAlign = TextAlign.Center,
-                color = MaterialTheme.colors.primary,
-                text = "acc_z: ${accelerometerValues[2]}"
-            )
-            Text(
-                modifier = Modifier.fillMaxWidth(),
-                textAlign = TextAlign.Center,
-                color = MaterialTheme.colors.primary,
-                text = "gyr_x: ${gyroscopeValues[0]}"
-            )
-            Text(
-                modifier = Modifier.fillMaxWidth(),
-                textAlign = TextAlign.Center,
-                color = MaterialTheme.colors.primary,
-                text = "gyr_y: ${gyroscopeValues[1]}"
-            )
-            Text(
-                modifier = Modifier.fillMaxWidth(),
-                textAlign = TextAlign.Center,
-                color = MaterialTheme.colors.primary,
-                text = "gyr_z: ${gyroscopeValues[2]}"
+                fontSize = 10.sp,
+                text = "Sensor data collection"
             )
         }
     }

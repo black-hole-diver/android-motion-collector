@@ -44,7 +44,6 @@ class WearListenerService : WearableListenerService() {
         }
     }
     companion object {
-        val instance = WearListenerService()
         private const val TAG = "ListenerService"
     }
 }

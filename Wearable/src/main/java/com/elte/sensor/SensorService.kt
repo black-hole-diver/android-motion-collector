@@ -21,21 +21,17 @@ import java.io.IOException
  * @version 2.0 2024-05-27
  */
 class SensorService : Service() {
-    /**
-     * Called when the service is starting.
-     */
     private lateinit var sensorEventHandler: SensorEventHandler
     private var isRunning = false
+    private var phoneNodeId: String? = null
 
+    /**
+     * Called by the system when the service is first created.
+     */
     override fun onCreate() {
         super.onCreate()
         sensorEventHandler = SensorEventHandler(this)
     }
-
-    /**
-     * The ID of the phone node.
-     */
-    private var phoneNodeId: String? = null
 
     /**
      * Called when the service is starting.
@@ -87,7 +83,7 @@ class SensorService : Service() {
     }
 
     /**
-     * Registers the required sensors.
+     * Starts recording sensor data.
      */
     private fun startRecording() {
         isRunning = true
@@ -131,10 +127,13 @@ class SensorService : Service() {
             }
         }
 
+        /**
+         * Thread to send prediction to phone.
+         */
         Thread(Runnable{
             while (isRunning) {
                 try {
-                    Thread.sleep(1000)  // Delay between sends
+                    Thread.sleep(1000)
                     Log.d(TAG, "Send prediction to phone")
 
                     val channelClient = Wearable.getChannelClient(this@SensorService)
@@ -167,7 +166,7 @@ class SensorService : Service() {
                         }
                     }
                 } catch (e: InterruptedException) {
-                    Thread.currentThread().interrupt()  // Restore interrupted status
+                    Thread.currentThread().interrupt()
                     Log.e(TAG, "Broadcast thread was interrupted", e)
                 } catch (e: Exception) {
                     Log.e(TAG, "Exception in broadcast thread: ${e.localizedMessage}")

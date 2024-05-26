@@ -1,6 +1,5 @@
 package com.elte.sensor
 
-import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
@@ -8,7 +7,6 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.net.toUri
 import com.elte.sensor.common.Constants
-import com.elte.sensor.databinding.FragmentFirstBinding
 import com.google.android.gms.wearable.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -27,7 +25,6 @@ import java.time.format.DateTimeFormatter
  * @author Wittawin Panta
  */
 class MobileListenerService : WearableListenerService() {
-    private lateinit var binding: FragmentFirstBinding
     private val retrofit = Retrofit.Builder()
         .baseUrl("https://studio.edgeimpulse.com/v1/")
         .addConverterFactory(GsonConverterFactory.create())
@@ -88,34 +85,6 @@ class MobileListenerService : WearableListenerService() {
                 }
             }
         }
-    }
-
-    override fun onDataChanged(dataEvents: DataEventBuffer) {
-        for (event in dataEvents) {
-            if (event.type == DataEvent.TYPE_CHANGED && event.dataItem.uri.path == "/sensor_data") {
-                val dataMap = DataMap.fromByteArray(event.dataItem.data)
-                val timestamp = dataMap.getString("timestamp")
-                val name = dataMap.getString("name")
-                val values = dataMap.getString("values")
-                val accuracy = dataMap.getString("accuracy")
-                val coords = dataMap.getString("coords")
-                val type = dataMap.getString("type")
-
-                broadcastSensorData(timestamp, name, values, accuracy, coords, type)
-            }
-        }
-    }
-
-    private fun broadcastSensorData(timestamp: String?, name: String?, values: String?, accuracy: String?, coords: String?, type: String?) {
-        val intent = Intent("com.elte.sensor.SENSOR_DATA").apply {
-            putExtra("timestamp", timestamp)
-            putExtra("name", name)
-            putExtra("values", values)
-            putExtra("accuracy", accuracy)
-            putExtra("coords", coords)
-            putExtra("type", type)
-        }
-        sendBroadcast(intent)
     }
 
     private fun uploadFileToEdgeImpulse(file: File) {
