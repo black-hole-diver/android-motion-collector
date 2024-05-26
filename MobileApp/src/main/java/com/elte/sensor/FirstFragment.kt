@@ -27,6 +27,9 @@ import com.google.android.gms.wearable.Node
 import com.google.android.gms.wearable.Wearable
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import org.checkerframework.common.value.qual.StaticallyExecutable
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 
 /**
  * First fragment.
@@ -38,70 +41,7 @@ class FirstFragment : Fragment() {
     private lateinit var binding: FragmentFirstBinding
     private var connectedNodes: List<Node> = emptyList()
     private var isRecording = false
-
-    private lateinit var sensorManager: SensorManager
-    private var accelerometer: Sensor? = null
-    private var gyroscope: Sensor? = null
-
-    private val sensorEventListener = object : SensorEventListener {
-        override fun onSensorChanged(event: SensorEvent) {
-            var numberOfSensors = sensorManager.getSensorList(Sensor.TYPE_GYROSCOPE_UNCALIBRATED).size + sensorManager.getSensorList(Sensor.TYPE_GYROSCOPE).size + sensorManager.getSensorList(Sensor.TYPE_ACCELEROMETER).size + sensorManager.getSensorList(Sensor.TYPE_ACCELEROMETER_UNCALIBRATED).size
-            binding.availableSensors.text = "Available sensors: ${numberOfSensors}"
-            val gyroSensor = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE)
-            var accSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
-            if (accSensor == null) {
-                Log.e(TAG, "Accelerometer sensor not available")
-                binding.accX.text = "acc-x: Accelerometer sensor not available"
-                binding.accY.text = "acc-y: Accelerometer sensor not available"
-                binding.accZ.text = "acc-z: Accelerometer sensor not available"
-            }
-            if (gyroSensor == null) {
-                Log.e(TAG, "Gyroscope sensor not available")
-                binding.gyroX.text = "gyro-x: Gyroscope sensor not available"
-                binding.gyroY.text = "gyro-y: Gyroscope sensor not available"
-                binding.gyroZ.text = "gyro-z: Gyroscope sensor not available"
-            }
-            when (event.sensor.type) {
-                Sensor.TYPE_ACCELEROMETER -> {
-                    binding.accX.text = "acc-x: ${event.values[0]}"
-                    binding.accY.text = "acc-y: ${event.values[1]}"
-                    binding.accZ.text = "acc-z: ${event.values[2]}"
-                }
-                Sensor.TYPE_GYROSCOPE -> {
-                    binding.gyroX.text = "gyro-x: ${event.values[0]}"
-                    binding.gyroY.text = "gyro-y: ${event.values[1]}"
-                    binding.gyroZ.text = "gyro-z: ${event.values[2]}"
-                }
-            }
-            Log.d(TAG, "Sensor changed: ${event.sensor.type} - ${event.values.contentToString()}")
-        }
-
-        override fun onAccuracyChanged(sensor: Sensor, accuracy: Int) {
-            Log.d(TAG, "Accuracy changed for: ${sensor.type} - $accuracy")
-        }
-    }
-
-    private fun updateSensorData(timestamp: String?, name: String?, values: String?, accuracy: String?, coords: String?, type: String?) {
-        val sensorData = """
-            Timestamp: $timestamp
-            Name: $name
-            Values: $values
-            Accuracy: $accuracy
-            Coords: $coords
-            Type: $type
-        """.trimIndent()
-
-        binding.connectionStatus.text = sensorData
-        if (name == "Accelerometer") {
-            binding.accX.text = "acc-x: ${values?.split("#")?.get(0)?.trim()}"
-            binding.accY.text = "acc-y: ${values?.split("#")?.get(1)?.trim()}"
-            binding.accZ.text = "acc-z: ${values?.split("#")?.get(2)?.trim()}"
-        } else if (name == "Gyroscope") {
-            binding.gyroX.text = "gyro-x: ${values?.split("#")?.get(0)?.trim()}"
-            binding.gyroY.text = "gyro-y: ${values?.split("#")?.get(1)?.trim()}"
-            binding.gyroZ.text = "gyro-z: ${values?.split("#")?.get(2)?.trim()}"
-        }
-    }
+    var timeAfterRecord = 0
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -111,15 +51,9 @@ class FirstFragment : Fragment() {
         binding.refreshConnectedNodes.setOnClickListener {
             findAllWearDevices()
         }
-        binding.imageView.setImageResource(R.drawable.bear)
+        binding.imageView.setImageResource(R.drawable.clapping)
         binding.imageView.visibility = View.INVISIBLE
 
-        binding.accX.text = "acc-x: 0.0"
-        binding.accY.text = "acc-y: 0.0"
-        binding.accZ.text = "acc-z: 0.0"
-        binding.gyroX.text = "gyro-x: 0.0"
-        binding.gyroY.text = "gyro-y: 0.0"
-        binding.gyroZ.text = "gyro-z: 0.0"
         setTextInvisible()
         binding.startRecordingBtn.visibility = View.VISIBLE
         binding.startRecordingBtn.setOnClickListener {
@@ -140,7 +74,6 @@ class FirstFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         findAllWearDevices()
-        updateSensorData()
     }
 
     private fun openDownloadsFolder() {
@@ -171,35 +104,13 @@ class FirstFragment : Fragment() {
     }
 
     private fun setTextInvisible() {
-        binding.accX.visibility = View.INVISIBLE
-        binding.accY.visibility = View.INVISIBLE
-        binding.accZ.visibility = View.INVISIBLE
-        binding.gyroX.visibility = View.INVISIBLE
-        binding.gyroY.visibility = View.INVISIBLE
-        binding.gyroZ.visibility = View.INVISIBLE
         binding.imageView.visibility = View.INVISIBLE
+        binding.predictedText.visibility = View.INVISIBLE
     }
 
     private fun setTextVisible() {
-        binding.accX.visibility = View.VISIBLE
-        binding.accY.visibility = View.VISIBLE
-        binding.accZ.visibility = View.VISIBLE
-        binding.gyroX.visibility = View.VISIBLE
-        binding.gyroY.visibility = View.VISIBLE
-        binding.gyroZ.visibility = View.VISIBLE
         binding.imageView.visibility = View.VISIBLE
-    }
-
-    private fun updateSensorData() {
-        sensorManager = requireActivity().getSystemService(Context.SENSOR_SERVICE) as SensorManager
-        accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
-        gyroscope = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE)
-        accelerometer?.let {
-            sensorManager.registerListener(sensorEventListener, it, SensorManager.SENSOR_DELAY_NORMAL)
-        }
-        gyroscope?.let {
-            sensorManager.registerListener(sensorEventListener, it, SensorManager.SENSOR_DELAY_NORMAL)
-        }
+        binding.predictedText.visibility = View.VISIBLE
     }
 
     private fun startRecording() {
@@ -211,14 +122,9 @@ class FirstFragment : Fragment() {
             binding.stopRecordingBtn.visibility = View.VISIBLE
             setTextVisible()
             binding.connectionStatus.text = "Recording in progress..."
-            val filter = IntentFilter("com.elte.sensor.SENSOR_DATA")
-
-            connectedNodes.forEach { node ->
-                sendMessage(MESSAGE_PATH_REQUEST_SENSOR_DATA, node.id)
-            }
-            updateSensorData()
-
             binding.openDownloadsBtn.visibility = View.INVISIBLE
+            updatePrediction()
+            recordingTimeUIStart()
         } catch (throwable: Throwable) {
             isRecording = false
             Log.e(TAG, throwable.toString())
@@ -226,6 +132,58 @@ class FirstFragment : Fragment() {
                     " Make sure the watch is connected to the phone" +
                     " via the Galaxy Watch app.."
         }
+    }
+
+    private fun recordingTimeUIStart() {
+        val scheduler = Executors.newSingleThreadScheduledExecutor()
+        scheduler.scheduleAtFixedRate({
+            if (isRecording) {
+                timeAfterRecord += 1
+                val hours = timeAfterRecord / 3600000
+                val minutes = (timeAfterRecord / 60000) % 60
+                val seconds = (timeAfterRecord / 1000) % 60
+                val milliseconds = timeAfterRecord % 1000
+                requireActivity().runOnUiThread {
+                    binding.recordingTime.text = String.format(
+                        "%02d:%02d:%02d:%03d",
+                        hours, minutes, seconds, milliseconds
+                    )
+                }
+            } else {
+                scheduler.shutdown()
+            }
+        }, 0, 100, TimeUnit.MILLISECONDS)
+    }
+
+    private fun updatePrediction(){
+        Thread(Runnable {
+            while (isRecording) {
+                try {
+                    Thread.sleep(1000)
+                    binding.predictedText.text = prediction
+                    if (prediction.contains("Clapping")) {
+                        binding.imageView.setImageResource(R.drawable.clapping)
+                    } else if (prediction.contains("Hopscotch")) {
+                        binding.imageView.setImageResource(R.drawable.hopscotch)
+                    } else if ( prediction.contains("Bear") ) {
+                        binding.imageView.setImageResource(R.drawable.bear)
+                    } else if ( prediction.contains("Drawing") ) {
+                        binding.imageView.setImageResource(R.drawable.drawing)
+                    } else if ( prediction.contains("Goliath") ) {
+                        binding.imageView.setImageResource(R.drawable.goliath)
+                    } else if ( prediction.contains("Puding_Eat") ) {
+                        binding.imageView.setImageResource(R.drawable.pudding_eat)
+                    } else if ( prediction.contains("Spider") ) {
+                        binding.imageView.setImageResource(R.drawable.spider)
+                    } else {
+                        binding.predictedText.text = "Unknown Movement"
+                        binding.imageView.setImageResource(R.drawable.unknown)
+                    }
+                } catch (e: Exception) {
+                    Log.e(TAG, "Error sending prediction to phone", e)
+                }
+            }
+        }).start()
     }
     private fun stopRecording() {
         try {
@@ -239,6 +197,7 @@ class FirstFragment : Fragment() {
                     " Make sure the watch is connected to the phone" +
                     " via the Galaxy Watch app."
         } finally {
+            timeAfterRecord = 0
             isRecording = false
             binding.startRecordingBtn.visibility = View.VISIBLE
             binding.stopRecordingBtn.visibility = View.INVISIBLE
@@ -294,5 +253,7 @@ class FirstFragment : Fragment() {
 
     companion object {
         private const val TAG = "FirstFragment"
+        var prediction = ""
+        var sensorNumber = 0
     }
 }

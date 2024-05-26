@@ -9,65 +9,19 @@
     tools:context=".FirstFragment">
 
     <TextView
-        android:id="@+id/gyro_y"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="@string/gyro_y"
-        android:textColor="@color/black"
-        android:textSize="15sp"
-        app:layout_constraintStart_toStartOf="@+id/gyro_x"
-        app:layout_constraintTop_toBottomOf="@+id/gyro_x" />
-
-    <TextView
-        android:id="@+id/gyro_z"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="@string/gyro_z"
-        android:textColor="@color/black"
-        android:textSize="15sp"
-        app:layout_constraintStart_toStartOf="@+id/gyro_y"
-        app:layout_constraintTop_toBottomOf="@+id/gyro_y" />
-
-    <TextView
-        android:id="@+id/gyro_x"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="@string/gyro_x"
-        android:textColor="@color/black"
-        android:textSize="15sp"
-        app:layout_constraintStart_toStartOf="@+id/acc_z"
-        app:layout_constraintTop_toBottomOf="@+id/acc_z" />
-
-    <TextView
         android:id="@+id/connection_status"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textColor="@color/black"
+        android:layout_width="364dp"
+        android:layout_height="57dp"
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
         android:text="@string/connection_status"
+        android:textColor="@color/black"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/phone_node_id"
         app:layout_constraintVertical_bias="0.001" />
-
-    <TextView
-        android:id="@+id/available_sensors"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/connection_status"
-        android:textColor="@color/black"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="@+id/connection_status"
-        app:layout_constraintTop_toBottomOf="@+id/connection_status"
-        app:layout_constraintVertical_bias="0.021" />
 
     <Button
         android:id="@+id/start_recording_btn"
@@ -107,7 +61,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="56dp"
+        android:layout_marginTop="76dp"
         android:layout_marginEnd="16dp"
         android:text="@string/refresh_connected_nodes"
         android:textColor="@color/black"
@@ -131,40 +85,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
-        android:id="@+id/acc_x"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="44dp"
-        android:layout_marginTop="200dp"
-        android:text="@string/acc_x"
-        android:textColor="@color/black"
-        android:textSize="15sp"
-        app:layout_constraintStart_toStartOf="@+id/refresh_connected_nodes"
-        app:layout_constraintTop_toBottomOf="@+id/refresh_connected_nodes" />
-
-    <TextView
-        android:id="@+id/acc_y"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="@string/acc_y"
-        android:textColor="@color/black"
-        android:textSize="15sp"
-        app:layout_constraintStart_toStartOf="@+id/acc_x"
-        app:layout_constraintTop_toBottomOf="@+id/acc_x" />
-
-    <TextView
-        android:id="@+id/acc_z"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="@string/acc_z"
-        android:textColor="@color/black"
-        android:textSize="15sp"
-        app:layout_constraintStart_toStartOf="@+id/acc_y"
-        app:layout_constraintTop_toBottomOf="@+id/acc_y" />
-
     <ImageView
         android:id="@+id/imageView"
         android:layout_width="265dp"
@@ -187,5 +107,30 @@
         app:layout_constraintHorizontal_bias="0.428"
         app:layout_constraintStart_toStartOf="@+id/start_recording_btn"
         app:layout_constraintTop_toBottomOf="@+id/start_recording_btn" />
+
+    <TextView
+        android:id="@+id/predicted_text"
+        android:layout_width="155dp"
+        android:layout_height="48dp"
+        android:layout_marginStart="52dp"
+        android:layout_marginTop="48dp"
+        android:textColor="@color/black"
+        android:text="@string/predictionText"
+        app:layout_constraintStart_toStartOf="@+id/imageView"
+        app:layout_constraintTop_toBottomOf="@+id/imageView" />
+
+    <TextView
+        android:id="@+id/recording_time"
+        android:layout_width="150dp"
+        android:layout_height="33dp"
+        android:layout_marginTop="28dp"
+        android:text="@string/initial_time"
+        android:textColor="@color/black"
+        android:textFontWeight="@integer/material_motion_duration_medium_1"
+        android:textSize="25dp"
+        app:layout_constraintEnd_toEndOf="@+id/connection_status"
+        app:layout_constraintHorizontal_bias="0.518"
+        app:layout_constraintStart_toStartOf="@+id/connection_status"
+        app:layout_constraintTop_toBottomOf="@+id/connection_status" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -61,6 +61,7 @@ class MobileListenerService : WearableListenerService() {
                             val prediction = predictionBytes.toString(Charsets.UTF_8)
                             withContext(Dispatchers.Main) {
                                 Log.i(TAG, "Received prediction: $prediction")
+                                FirstFragment.prediction = prediction
                             }
                         }
                     } catch (e: Exception) {
@@ -79,7 +80,7 @@ class MobileListenerService : WearableListenerService() {
                             withContext(Dispatchers.Main) {
                                 Log.i(TAG, "Received sensor number: $sensorNumber")
                             }
-                            binding.availableSensors.text = sensorNumber
+                            FirstFragment.sensorNumber = sensorNumber.toInt()
                         }
                     } catch (e: Exception) {
                         Log.e(TAG, "Error reading sensor number data: ${e.localizedMessage}")
